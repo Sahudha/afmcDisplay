@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Central Message Display</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #0b1220;
+      --card-bg: #1f2937;
+      --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.15);
+      --text: #f9fafb;
+      --muted: #9ca3af;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      background: radial-gradient(circle at top, #1f2937, #020617);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      padding: 1.2rem 2rem;
+      background: linear-gradient(90deg, #0f172a, #020617);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .org-name {
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .org-motto {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-top: 0.1rem;
+    }
+
+    .header-right {
+      font-size: 0.9rem;
+      color: var(--muted);
+      text-align: right;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      padding: 1.5rem 2rem;
+      gap: 1.5rem;
+    }
+
+    .messages-panel,
+    .image-panel {
+      flex: 1;
+      border-radius: 1rem;
+      overflow: hidden;
+      position: relative;
+      height: 600px;
+    }
+
+    .messages-panel {
+      background: radial-gradient(circle at top left, #111827, #020617);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      display: flex;
+      flex-direction: column;
+      
+    }
+
+    .messages-header {
+      padding: 0.8rem 1.1rem;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.3);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(90deg, rgba(56, 189, 248, 0.12), transparent);
+    }
+
+    .messages-header h2 {
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--accent);
+    }
+
+    .messages-header span {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .messages-viewport {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+      height: 100%;
+    }
+
+    .messages-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      position: absolute;
+      width: 100%;
+      animation: scrollUp linear infinite;
+    }
+
+    .message-card {
+      padding: 0.7rem 0.9rem;
+      border-radius: 0.75rem;
+      background: linear-gradient(135deg, var(--card-bg), #020617);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.7);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .message-card::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background: radial-gradient(circle at top left, var(--accent-soft), transparent);
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    .message-title {
+      font-weight: 600;
+      font-size: 1rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .message-text {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 0.35rem;
+    }
+
+    .message-time {
+      font-size: 0.75rem;
+      color: var(--accent);
+      text-align: right;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .slide-up {
+      animation: slideUp 1.2s ease-out;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    @keyframes scrollUp {
+      0% {
+        transform: translateY(0);
+      }
+      100% {
+        transform: translateY(-100%);
+      }
+    }
+
+
+    .image-panel {
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      background: #020617;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .image-panel img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .image-overlay {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, transparent, rgba(0, 0, 0, 0.35));
+      pointer-events: none;
+    }
+
+    footer {
+      padding: 0.8rem 2rem;
+      background: #020617;
+      border-top: 1px solid rgba(148, 163, 184, 0.3);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-left {
+      max-width: 60%;
+    }
+
+    .footer-left strong {
+      color: var(--text);
+    }
+
+    .footer-right {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .footer-right span {
+      white-space: nowrap;
+    }
+
+    .footer-right a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .footer-right a:hover {
+      text-decoration: underline;
+    }
+
+    /* Responsive (for testing on phone) */
+    @media (max-width: 900px) {
+      main {
+        flex-direction: column;
+      }
+      .footer-left {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <!-- HEADER: change organisation name & motto here -->
+    <header>
+      <div>
+        <div class="org-name">Ashmal Family Medical Centre</div>
+        <div class="org-motto">We Care He Cures</div>
+      </div>
+      <div class="header-right">
+        Alhamthulillaah.
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main>
+      <!-- LEFT: MESSAGES -->
+      <section class="messages-panel">
+        <div class="messages-header">
+          <h2>Announcements</h2>
+          <span>Auto scrolling • Live loop</span>
+        </div>
+        <div class="messages-viewport">
+          <div id="messagesList" class="messages-list"></div>
+        </div>
+      </section>
+
+      <!-- RIGHT: IMAGE -->
+      <section class="image-panel">
+        <!-- Change this image source to whatever you want -->
+        <img
+          src="https://images.pexels.com/photos/34092/pexels-photo.jpg"
+          alt="Organisation visual"
+        />
+        <div class="image-overlay"></div>
+      </section>
+    </main>
+
+    <!-- FOOTER: contact details -->
+    <footer>
+      <div class="footer-left">
+        <strong>Ashmal Family Medical Centre</strong><br />
+        50 Mosque Road, Pallikkudiyiruppu-2, Akkaraipattu, Sri Lanka.
+      </div>
+      <div class="footer-right">
+        <span>☎ +94 777 444 336</span>
+        <span>✉ drhudha@ashmal.com</span>
+        <span>🌐 <a href="https://www.ashmalfmc.com" target="_blank">www.ashmalfmc.com</a></span>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+const messages = [
+  { title: "Outpatient Clinic Hours", text: "Open in mornings 07:00 AM - 08.00 AM & evenings 6:30 PM - 10:00 PM daily", time: "Daily" },
+  { title: "Blood and Urine Tests", text: "Blood collection for all kind of blood tests and urine tests", time: "07:30 AM" },
+  { title: "Diabetic Wound Care", text: "Dressing for all kind of wounds and diabetic foot care", time: "6:30 PM" },
+  { title: "Woman and Child health", text: "Family planning, Depo injections, child nutrition clinic and etc.", time: "Anytime" },
+  { title: "Nebulisation and ECG", text: "Emergency care if doctor or staff available", time: "24/7" },
+  { title: "Surgeries", text: "Small surgeries and all kind of wound dressings available", time: "6:30 PM" }
+];
+
+// Number visible at once
+const VISIBLE_COUNT = 5;
+
+// Select element
+const container = document.getElementById("messagesList");
+
+// Duplicate messages for smooth looping
+const loopMessages = [...messages, ...messages];
+
+// Apply animation duration based on number of messages
+const scrollSpeed = 10; // seconds per message
+container.style.animationDuration = messages.length * scrollSpeed + "s";
+
+// Render dynamic HTML
+container.innerHTML = loopMessages.map(msg => `
+  <div class="message-card">
+    <div class="message-title">${msg.title}</div>
+    <div class="message-text">${msg.text}</div>
+    <div class="message-time">${msg.time}</div>
+  </div>
+`).join("");
+</script>
+</body>
+</html>
